@@ -6,7 +6,7 @@ namespace lab1
     {
         static void Main(string[] args)
         {
-            PresidentService presidentCard = PresidentService.Identification(1567832);
+            PresidentService presidentCard = PresidentService.DoIdentification(1567832);
             Console.ReadKey();
             Console.Clear();
 
@@ -383,7 +383,7 @@ namespace lab1
             Console.WriteLine("President service. This is private constructor");
         }
 
-        public static PresidentService Identification(int id_code)
+        public static PresidentService DoIdentification(int id_code)
         {
             if (id_code == idCode)
             {
