@@ -289,7 +289,7 @@ namespace lab1
 
         static VipCard()
         {
-            Console.WriteLine("Our bank now has VIP customer service.(static constructor)");
+            Console.WriteLine("Congratulations, you are the first VIP user.(static constructor)");
         }
 
         public VipCard()
