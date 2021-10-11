@@ -380,7 +380,7 @@ namespace lab1
             Console.WriteLine("President service. This is private constructor");
         }
 
-        public static bool DoIdentification(int id_code)
+        private static bool DoIdentification(int id_code)
         {
             if (id_code == idCode)
             {
