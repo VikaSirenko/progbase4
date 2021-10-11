@@ -6,7 +6,7 @@ namespace lab1
     {
         static void Main(string[] args)
         {
-            PresidentService presidentCard = PresidentService.DoIdentification(1567832);
+            PresidentService presidentCard = PresidentService.CreatePresidentCard(1567832);
             Console.ReadKey();
             Console.Clear();
 
@@ -35,7 +35,7 @@ namespace lab1
             Console.Clear();
 
 
-            VipCard vipCard= new VipCard("Petro", 14);
+            VipCard vipCard = new VipCard("Petro", 14);
 
             Console.ReadKey();
             Console.Clear();
@@ -96,7 +96,19 @@ namespace lab1
             return amount_of_money;
         }
 
-        public abstract void WithdrawMoney(double amount);
+        public virtual void WithdrawMoney(double amount)
+        {
+            if (amount < 0 || amount > amount_of_money)
+            {
+                Console.WriteLine("It is impossible to withdraw money");
+            }
+            else
+            {
+                this.amount_of_money = amount_of_money - amount;
+
+            }
+
+        }
 
         public abstract void PutMoney(double amount);
 
@@ -254,21 +266,6 @@ namespace lab1
         }
 
 
-
-        public override void WithdrawMoney(double amount)
-        {
-            if (amount < 0 || amount > amount_of_money)
-            {
-                Console.WriteLine("It is impossible to withdraw money");
-            }
-            else
-            {
-                this.amount_of_money = amount_of_money - amount;
-
-            }
-
-        }
-
         public void Dispose()
         {
             GC.SuppressFinalize(this);
@@ -383,17 +380,25 @@ namespace lab1
             Console.WriteLine("President service. This is private constructor");
         }
 
-        public static PresidentService DoIdentification(int id_code)
+        public static bool DoIdentification(int id_code)
         {
             if (id_code == idCode)
+            {
+                return true;
+            }
+            Console.WriteLine("You entered an incorrect id");
+            return false;
+        }
+
+        public static PresidentService CreatePresidentCard(int id_code)
+        {
+            if (DoIdentification(id_code) == true)
             {
                 PresidentService presidentCard = new PresidentService();
                 return presidentCard;
             }
-            Console.WriteLine("You entered an incorrect id");
             return null;
         }
-
 
 
     }
