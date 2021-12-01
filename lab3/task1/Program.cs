@@ -191,7 +191,6 @@ namespace task1
             {
                 component.ShowPetsInResidentalComponent(depth + 2);
             }
-
         }
 
         public override void ShowAverageAgeOfPets(int depth)
