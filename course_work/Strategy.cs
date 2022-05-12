@@ -26,10 +26,26 @@ namespace course_work
         abstract public void DoMasterClassDancing(Pupil pupil, DanceTeacher danceTeacher);
     }
 
-    class EasyDanceMC : DanceMasterClassStrategy
+    class EasyDanceMC : DanceMasterClassStrategy, IMasterClass
     {
         private int scoreParam = 10;
         private double moneyParam = 50;
+        public int Score
+        {
+            get { return scoreParam; }
+        }
+
+        public double Money
+        {
+            get { return moneyParam; }
+        }
+
+        public void Accept(Visitor visitor)
+        {
+            this.scoreParam += 3;
+            visitor.VisitEasyDanceMC(this);
+        }
+
         public override void DoMasterClassDancing(Pupil pupil, DanceTeacher danceTeacher)
         {
             pupil.ChangeScore(scoreParam);
@@ -37,12 +53,29 @@ namespace course_work
             danceTeacher.PutMoney(moneyParam);
             Thread.Sleep(1000);
         }
+
     }
 
-    class NormalDanceMC : DanceMasterClassStrategy
+    class NormalDanceMC : DanceMasterClassStrategy, IMasterClass
     {
         private int scoreParam = 20;
         private double moneyParam = 75;
+        public int Score
+        {
+            get { return scoreParam; }
+        }
+
+        public double Money
+        {
+            get { return moneyParam; }
+        }
+
+        public void Accept(Visitor visitor)
+        {
+            this.scoreParam += 4;
+            visitor.VisitNormalDanceMC(this);
+        }
+
         public override void DoMasterClassDancing(Pupil pupil, DanceTeacher danceTeacher)
         {
             pupil.ChangeScore(scoreParam);
@@ -52,10 +85,26 @@ namespace course_work
         }
     }
 
-    class ProfessionalMC : DanceMasterClassStrategy
+    class ProfessionalMC : DanceMasterClassStrategy, IMasterClass
     {
         private int scoreParam = 30;
         private double moneyParam = 100;
+        public int Score
+        {
+            get { return scoreParam; }
+        }
+
+        public double Money
+        {
+            get { return moneyParam; }
+        }
+
+        public void Accept(Visitor visitor)
+        {
+            this.scoreParam += 5;
+            visitor.VisitProfessionalMC(this);
+        }
+
         public override void DoMasterClassDancing(Pupil pupil, DanceTeacher danceTeacher)
         {
             pupil.ChangeScore(scoreParam);

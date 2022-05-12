@@ -32,18 +32,34 @@ namespace course_work
 
     class ShowStudioCommand : Command
     {
-        public override void DoCommand( )
+        public override void DoCommand()
         {
             danceTeacher.ShowDanceStudio();
         }
     }
 
-    class AddPupilCommand: Command
+    class AddPupilCommand : Command
     {
         public override void DoCommand()
         {
             danceTeacher.AddNewPupil();
         }
+    }
+
+    class ReceiveStarVisitorCommand : Command
+    {
+        public override void DoCommand()
+        {
+            danceTeacher.RecieveStarVisitor();
+        }
+    }
+
+    class  GetCharacterInfo : Command
+    {
+        public override void DoCommand()
+        {
+            danceTeacher.GetInfo();
+        } 
     }
 
 

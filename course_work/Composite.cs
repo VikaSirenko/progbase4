@@ -78,7 +78,7 @@ namespace course_work
         }
         public override void AddDanceStudioComponent(DanceStudioComponent component)
         {
-            WriteLine("Imposible Operation");                                           // throw -> try catch
+            WriteLine("Imposible Operation");                                          
         }
 
         public override void ShowPupilsInDanceStudioComponent(int depth)

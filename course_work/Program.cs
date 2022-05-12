@@ -9,17 +9,23 @@ namespace course_work
     {
         static void Main(string[] args)
         {
+
             PlayGame.StartPlay();
+
         }
     }
+
 
     static class PlayGame
     {
         static private DanceTeacher danceTeacher;
-        static private bool competition;
-        static private bool first_pupil;
-        static private bool second_pupil;
-        static private bool third_pupil;  // random -> if true add new pupil, else countinue 
+        static private bool isStarVisitor;
+        static private Command command;
+        static private Invoker invoker = new Invoker();
+
+        // static private bool first_pupil;
+        // static private bool second_pupil;
+        // static private bool third_pupil;  // random -> if true add new pupil, else countinue 
 
         public static void StartPlay()
         {
@@ -29,11 +35,30 @@ namespace course_work
             bool play = true;
             while (play)
             {
-                CheckDanceTeacherInformation();
+                try
+                {
+                    CheckDanceTeacherInformation();
+                    InteractWithGui();
+
+                }
+                catch (Exception ex)
+                {
+                    WriteLine("ERROR: " + ex.Message);
+                }
 
             }
 
+        }
 
+        private static bool GetRandomValue()
+        {
+            Random random = new Random();
+            int randomNum = random.Next(0, 2);
+            if (randomNum == 0)
+            {
+                return false;
+            }
+            return true;
         }
 
         private static void CreateCharacter()
@@ -61,7 +86,6 @@ namespace course_work
                     WriteLine("Information about the character is entered incorrectly. Try one more time.");
                 }
             }
-
         }
 
         static private void CheckDanceTeacherInformation()
@@ -70,27 +94,64 @@ namespace course_work
             if (danceTeacher.Score >= 1000)
             {
                 danceTeacher.ChangeLevel();
-                danceTeacher.GetInfo();
-            }
-            if (danceTeacher.Score >= 500 && competition == true)
-            {
-                // todo chellange
-                competition = false;
+                command = new GetCharacterInfo();
+                command.DanceTeacher = danceTeacher;
+                invoker.StoreCommand(command);
+                invoker.DoCommand();
             }
 
-            if (danceTeacher.Score >= 100 && first_pupil == true)
+            if (danceTeacher.Score >= 500 && isStarVisitor == true)
             {
-                first_pupil = false;
-            }
-            if (danceTeacher.Score >= 400 && second_pupil == true)
-            {
-                second_pupil = false;
-            }
-            if (danceTeacher.Score >= 800 && third_pupil == true)
-            {
-                third_pupil = false;
+                command = new ReceiveStarVisitorCommand();
+                command.DanceTeacher = danceTeacher;
+                invoker.StoreCommand(command);
+                invoker.DoCommand();
+                isStarVisitor = false;
             }
 
+            if (GetRandomValue() == true)
+            {
+                command = new AddPupilCommand();
+                command.DanceTeacher = danceTeacher;
+                invoker.StoreCommand(command);
+                invoker.DoCommand();
+            }
+        }
+
+        static private bool InteractWithGui()
+        {
+            WriteLine("| (M)C | (B)uy | (S)how studio | (G)et character info | (E)xit |");
+            if (ReadKey().Key == ConsoleKey.M)
+            {
+                command = new MCcommand();
+
+            }
+            else if (ReadKey().Key == ConsoleKey.B)
+            {
+                command = new BuyCommand();
+
+            }
+            else if (ReadKey().Key == ConsoleKey.S)
+            {
+                command = new ShowStudioCommand();
+            }
+            else if (ReadKey().Key == ConsoleKey.G)
+            {
+                command = new GetCharacterInfo();
+            }
+            else if (ReadKey().Key == ConsoleKey.E)
+            {
+                return false;
+            }
+            else
+            {
+                WriteLine("There is no such command to execute. Try again.");
+                return true;
+            }
+            command.DanceTeacher = danceTeacher;
+            invoker.StoreCommand(command);
+            invoker.DoCommand();
+            return true;
 
         }
     }
@@ -130,7 +191,7 @@ namespace course_work
     class Pupil : Human
     {
         private string way_of_dance;
-        public string group;
+        //public string group;
         private string namePath = "./name";
         private string surnamePath = "./surname";
 
@@ -146,7 +207,7 @@ namespace course_work
             this.name = FindPupilData(this.namePath);
             this.surname = FindPupilData(this.surnamePath);
             Random random = new Random();
-            this.way_of_dance = FindPupilData(this.wayOfDance[random.Next(0, 3)]);
+            this.way_of_dance = this.wayOfDance[random.Next(0, 3)];
             this.age = random.Next(6, 22);
             return this;
         }
@@ -335,6 +396,11 @@ namespace course_work
         private Shop shop;
 
         private DanceMasterClass danceMasterClass;
+        private EasyDanceMC easyDanceMC;
+        private NormalDanceMC normalDanceMC;
+        private ProfessionalMC professionalMC;
+        private Visitor visitor;
+
 
         public DanceTeacher(string name, string surname, int age)
         {
@@ -380,6 +446,10 @@ namespace course_work
             balletDirection.AddDanceStudioComponent(balletAdultGroup);
 
             this.shop = new Shop();
+            this.easyDanceMC = new EasyDanceMC();
+            this.normalDanceMC = new NormalDanceMC();
+            this.professionalMC = new ProfessionalMC();
+            visitor = new StarVisitor();
         }
 
         public void SpendMoney(double price)
@@ -396,7 +466,7 @@ namespace course_work
         {
             this.level += 1;
             this.score = this.score - 1000;
-            // new pupil 
+            this.AddNewPupil();
         }
 
         public void UpdatePupilsScore(int scoreParam)
@@ -421,7 +491,7 @@ namespace course_work
             WriteLine("Enter a surname:");
             string pupil_surname = ReadLine();
             List<Pupil> pupils = danceStudio.GetListOfPupils();
-            Pupil pupil= new Pupil();
+            Pupil pupil = new Pupil();
             foreach (Pupil p in pupils)
             {
                 if (p.Name == pupil_surname && p.Surname == pupil_surname)
@@ -430,21 +500,21 @@ namespace course_work
                 }
             }
             WriteLine("Choose which master class you want to send the student to\nE- easy dance master class\nM-middle dance master class\nP-professional dance master class\n");
-            if(ReadKey().Key==ConsoleKey.E)
+            if (ReadKey().Key == ConsoleKey.E)
             {
-                danceMasterClass=new DanceMasterClass(new EasyDanceMC(), pupil, this);
+                danceMasterClass = new DanceMasterClass(easyDanceMC, pupil, this);
             }
-            else if(ReadKey().Key==ConsoleKey.M)
+            else if (ReadKey().Key == ConsoleKey.N)
             {
-                danceMasterClass= new DanceMasterClass(new EasyDanceMC(), pupil, this);
+                danceMasterClass = new DanceMasterClass(normalDanceMC, pupil, this);
             }
-            else if(ReadKey().Key==ConsoleKey.P)
+            else if (ReadKey().Key == ConsoleKey.P)
             {
-                danceMasterClass= new DanceMasterClass(new ProfessionalMC(), pupil, this);
+                danceMasterClass = new DanceMasterClass(professionalMC, pupil, this);
             }
-            else 
+            else
             {
-                WriteLine("Eou pressed the wrong button");
+                WriteLine("You pressed the wrong button");
             }
         }
 
@@ -550,6 +620,23 @@ namespace course_work
 
         }
 
+        public void RecieveStarVisitor()
+        {
+            Random random = new Random();
+            int randomNum = random.Next(1, 4);
+            if (randomNum == 1)
+            {
+                easyDanceMC.Accept(visitor);
+            }
+            else if (randomNum == 2)
+            {
+                normalDanceMC.Accept(visitor);
+            }
+            else if (randomNum == 3)
+            {
+                professionalMC.Accept(visitor);
+            }
+        }
     }
 
 
