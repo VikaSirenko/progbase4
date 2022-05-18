@@ -23,27 +23,27 @@ namespace course_work
         static private Command command;
         static private Invoker invoker = new Invoker();
 
-        // static private bool first_pupil;
-        // static private bool second_pupil;
-        // static private bool third_pupil;  // random -> if true add new pupil, else countinue 
+        static private bool first_pupil;
+        static private bool second_pupil;
+        static private bool third_pupil;  // random -> if true add new pupil, else countinue 
 
         public static void StartPlay()
         {
-            WriteLine("Welcome to the dance studio!!!");
+            WriteLine("\nWelcome to the dance studio!!!");
             CreateCharacter();
-            WriteLine("\nLet`s play");
+            WriteLine("\nLet`s play!!!\n");
             bool play = true;
             while (play)
             {
                 try
                 {
                     CheckDanceTeacherInformation();
-                    InteractWithGui();
+                    play=InteractWithGui();
 
                 }
                 catch (Exception ex)
                 {
-                    WriteLine("ERROR: " + ex.Message);
+                    WriteLine("\nERROR: " + ex.Message);
                 }
 
             }
@@ -76,16 +76,18 @@ namespace course_work
                 bool is_age = int.TryParse(ReadLine(), out age);
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(surname) && is_age && age > 0)
                 {
-                    WriteLine("\nYou created a dance teacher:");
+                    WriteLine("\nYou created a dance teacher!");
                     danceTeacher = new DanceTeacher(name, surname, age);
                     inputData = false;
-                    danceTeacher.CreateDanceStudio();
+                    command = new CreateDanceSdudioCommand();
+                    ProccedCommand();
                 }
                 else
                 {
-                    WriteLine("Information about the character is entered incorrectly. Try one more time.");
+                    WriteLine("\nInformation about the character is entered incorrectly. Try one more time.");
                 }
             }
+            WriteLine("-----------------------------------------------------------------------");
         }
 
         static private void CheckDanceTeacherInformation()
@@ -93,64 +95,93 @@ namespace course_work
 
             if (danceTeacher.Score >= 1000)
             {
-                danceTeacher.ChangeLevel();
+                command = new ChangeLevelCommand();
+                ProccedCommand();
                 command = new GetCharacterInfo();
-                command.DanceTeacher = danceTeacher;
-                invoker.StoreCommand(command);
-                invoker.DoCommand();
+                ProccedCommand();
+                first_pupil = false;
+                second_pupil = false;
+                third_pupil = false;
             }
 
             if (danceTeacher.Score >= 500 && isStarVisitor == true)
             {
                 command = new ReceiveStarVisitorCommand();
-                command.DanceTeacher = danceTeacher;
-                invoker.StoreCommand(command);
-                invoker.DoCommand();
+                ProccedCommand();
                 isStarVisitor = false;
             }
 
-            if (GetRandomValue() == true)
+            if (danceTeacher.Score >= 100 && first_pupil == false && GetRandomValue() == true)
             {
                 command = new AddPupilCommand();
-                command.DanceTeacher = danceTeacher;
-                invoker.StoreCommand(command);
-                invoker.DoCommand();
+                ProccedCommand();
+                first_pupil = true;
             }
+
+            if (danceTeacher.Score >= 400 && second_pupil == false && GetRandomValue() == true)
+            {
+                command = new AddPupilCommand();
+                ProccedCommand();
+                second_pupil = true;
+            }
+            if (danceTeacher.Score >= 800 && third_pupil == false && GetRandomValue() == true)
+            {
+                command = new AddPupilCommand();
+                ProccedCommand();
+                third_pupil = true;
+            }
+
+
+            // if (GetRandomValue() == true)
+            // {
+            //     command = new AddPupilCommand();
+            //     command.DanceTeacher = danceTeacher;
+            //     invoker.StoreCommand(command);
+            //     invoker.DoCommand();
+            // }
+        }
+
+        private static void ProccedCommand()
+        {
+            command.DanceTeacher = danceTeacher;
+            invoker.StoreCommand(command);
+            //invoker.DoCommand();
         }
 
         static private bool InteractWithGui()
         {
+            WriteLine("\n------------------------------------------------------------------");
             WriteLine("| (M)C | (B)uy | (S)how studio | (G)et character info | (E)xit |");
-            if (ReadKey().Key == ConsoleKey.M)
+            WriteLine("------------------------------------------------------------------\n");
+            ConsoleKey key = ReadKey().Key;
+            if (key == ConsoleKey.M)
             {
                 command = new MCcommand();
 
             }
-            else if (ReadKey().Key == ConsoleKey.B)
+            else if (key == ConsoleKey.B)
             {
                 command = new BuyCommand();
 
             }
-            else if (ReadKey().Key == ConsoleKey.S)
+            else if (key == ConsoleKey.S)
             {
                 command = new ShowStudioCommand();
             }
-            else if (ReadKey().Key == ConsoleKey.G)
+            else if (key == ConsoleKey.G)
             {
                 command = new GetCharacterInfo();
             }
-            else if (ReadKey().Key == ConsoleKey.E)
+            else if (key == ConsoleKey.E)
             {
                 return false;
             }
             else
             {
-                WriteLine("There is no such command to execute. Try again.");
+                WriteLine("\nThere is no such command to execute. Try again.");
                 return true;
             }
-            command.DanceTeacher = danceTeacher;
-            invoker.StoreCommand(command);
-            invoker.DoCommand();
+            ProccedCommand();
             return true;
 
         }
@@ -179,7 +210,7 @@ namespace course_work
             get { return score; }
         }
 
-        abstract public void GetInfo();
+        // abstract public void GetInfo();
 
         public void ChangeScore(int scoreParam)
         {
@@ -191,7 +222,6 @@ namespace course_work
     class Pupil : Human
     {
         private string way_of_dance;
-        //public string group;
         private string namePath = "./name";
         private string surnamePath = "./surname";
 
@@ -212,10 +242,16 @@ namespace course_work
             return this;
         }
 
-        public override void GetInfo()
+        public override string ToString()
         {
-            WriteLine($"Name: {this.name} | Surname: {this.surname} | Way of dance: {this.wayOfDance} | Age: {this.age} | Score: {this.score}");
+            return $"\n[Name: {this.name} | Surname: {this.surname} | Way of dance: {this.way_of_dance} | Age: {this.age} | Score: {this.score}]";
         }
+
+        // public override void GetInfo()
+        // {
+        //     WriteLine($"\nName: {this.name} | Surname: {this.surname} | Way of dance: {this.way_of_dance} | Age: {this.age} | Score: {this.score}");
+        // }
+
         public string CheckGroup(ConsoleKey key)
         {
             if (key == ConsoleKey.F)
@@ -254,7 +290,7 @@ namespace course_work
             }
             else
             {
-                WriteLine("You pressed the wrong button");
+                WriteLine("\nYou pressed the wrong button");
                 return "wrong";
             }
         }
@@ -297,7 +333,7 @@ namespace course_work
             }
             else
             {
-                WriteLine("You pressed the wrong button");
+                WriteLine("\nYou pressed the wrong button");
                 return "wrong";
             }
         }
@@ -322,19 +358,12 @@ namespace course_work
                     char item = search_line[i];
                     if (item == '"')
                     {
-                        ForegroundColor = ConsoleColor.Red;
-                        WriteLine("Error: the text contains quotation marks");
-                        ResetColor();
-                        Environment.Exit(1);
+                        throw new Exception("Error: the text contains quotation marks");
 
                     }
                     else if (item == ',')
                     {
-                        ForegroundColor = ConsoleColor.Red;
-                        WriteLine("Error:the text contains a comma");
-                        ResetColor();
-                        Environment.Exit(1);
-
+                        throw new Exception("Error:the text contains a comma");
                     }
 
                 }
@@ -413,7 +442,7 @@ namespace course_work
         public void CreateDanceStudio()
         {
             string nameOfDanceStudio = "";
-            WriteLine("Give a name to your Dance Studio");
+            WriteLine("\nGive a name to your Dance Studio");
             nameOfDanceStudio = ReadLine();
             this.danceStudio = new DanceStudioComposite(nameOfDanceStudio);
 
@@ -469,7 +498,7 @@ namespace course_work
             this.AddNewPupil();
         }
 
-        public void UpdatePupilsScore(int scoreParam)
+        private void UpdatePupilsScore(int scoreParam)
         {
             List<Pupil> pupils = danceStudio.GetListOfPupils();
             foreach (Pupil pupil in pupils)
@@ -478,17 +507,25 @@ namespace course_work
             }
         }
 
-        public override void GetInfo()
+        // public override void GetInfo()
+        // {
+        //     WriteLine($"\nName: {this.name} | Surname: {this.surname} | Age: {this.age} | Level: {this.level} | Score: {this.score}");
+        // }
+
+        public override string ToString()
         {
-            WriteLine($"Name: {this.name} | Surname: {this.surname} | Age: {this.age} | Level: {this.level} | Score: {this.score}");
+            return $"\n[Name: {this.name} | Surname: {this.surname} | Age: {this.age} | Level: {this.level} | Score: {this.score} | Money: {this.Money}]";
         }
+
+
 
         public void DoMC()
         {
-            WriteLine("Select a pupil for the master class:");
-            WriteLine("Enter a name:");
+            WriteLine("\nLet's hold a master class");
+            WriteLine("\nSelect a pupil for the master class:");
+            WriteLine("\nEnter a name:");
             string pupil_name = ReadLine();
-            WriteLine("Enter a surname:");
+            WriteLine("\nEnter a surname:");
             string pupil_surname = ReadLine();
             List<Pupil> pupils = danceStudio.GetListOfPupils();
             Pupil pupil = new Pupil();
@@ -499,43 +536,46 @@ namespace course_work
                     pupil = p;
                 }
             }
-            WriteLine("Choose which master class you want to send the student to\nE- easy dance master class\nM-middle dance master class\nP-professional dance master class\n");
-            if (ReadKey().Key == ConsoleKey.E)
+            WriteLine("\nChoose which master class you want to send the student to\nE- easy dance master class\nM-middle dance master class\nP-professional dance master class\n");
+            ConsoleKey key = ReadKey().Key;
+            if (key == ConsoleKey.E)
             {
                 danceMasterClass = new DanceMasterClass(easyDanceMC, pupil, this);
             }
-            else if (ReadKey().Key == ConsoleKey.N)
+            else if (key == ConsoleKey.N)
             {
                 danceMasterClass = new DanceMasterClass(normalDanceMC, pupil, this);
             }
-            else if (ReadKey().Key == ConsoleKey.P)
+            else if (key == ConsoleKey.P)
             {
                 danceMasterClass = new DanceMasterClass(professionalMC, pupil, this);
             }
             else
             {
-                WriteLine("You pressed the wrong button");
+                WriteLine("\nYou pressed the wrong button");
             }
         }
 
         public void BuyDanceClass()
         {
-            WriteLine("What dance room do you want to buy?\nS- simple dance room\nG- good dance room\nP- professional dance room\n");
-            if (ReadKey().Key == ConsoleKey.S)
+            WriteLine("\nLet's buy a dance studio");
+            WriteLine("\nWhat dance room do you want to buy?\nS- simple dance room\nG- good dance room\nP- professional dance room\n");
+            ConsoleKey key = ReadKey().Key;
+            if (key == ConsoleKey.S)
             {
                 danceRoomBuilder = new SimpleDanceRoom();
             }
-            else if (ReadKey().Key == ConsoleKey.G)
+            else if (key == ConsoleKey.G)
             {
                 danceRoomBuilder = new GoodDanceRoom();
             }
-            else if (ReadKey().Key == ConsoleKey.P)
+            else if (key == ConsoleKey.P)
             {
                 danceRoomBuilder = new ProDanceRoom();
             }
             else
             {
-                WriteLine("You pressed the wrong button");
+                WriteLine("\nYou pressed the wrong button");
                 return; //check if method is end here 
             }
 
@@ -546,17 +586,18 @@ namespace course_work
 
         public void ShowDanceStudio()
         {
-            danceStudio.ShowPupilsInDanceStudioComponent(2);
+            danceStudio.ShowPupilsInDanceStudioComponent(3);
         }
 
         public void AddNewPupil()
         {
+            WriteLine("\nLet's add a new student to the group");
             Pupil addedPupil = new Pupil();
-            addedPupil.GetInfo();
-            WriteLine("Enter the direction of the dance that the pupil wants to do\nF- folk\nH- hip-hop\nB- ballet\n");
+            WriteLine(addedPupil.ToString());
+            WriteLine("\nEnter the direction of the dance that the pupil wants to do\nF- folk\nH- hip-hop\nB- ballet\n");
             string rightGroup = addedPupil.CheckGroup(ReadKey().Key);
 
-            WriteLine("enter a group case that suits the pupil\nC- children\nJ- junior\nA- adult\n");
+            WriteLine("\nEnter a group case that suits the pupil\nC- children\nJ- junior\nA- adult\n");
             string ageGroup = addedPupil.CheckAge(ReadKey().Key);
             if (rightGroup == "folk")
             {
@@ -572,12 +613,12 @@ namespace course_work
                         folkAdultGroup.AddPupil(addedPupil);
                         break;
                     default:
-                        WriteLine("You have chosen the wrong age group for the pupil");
+                        WriteLine("\nYou have chosen the wrong age group for the pupil");
                         break;
 
                 }
             }
-            else if (rightGroup == "hip=hop")
+            else if (rightGroup == "hip-hop")
             {
                 switch (ageGroup)
                 {
@@ -591,7 +632,7 @@ namespace course_work
                         hipHopAdultGroup.AddPupil(addedPupil);
                         break;
                     default:
-                        WriteLine("You have chosen the wrong age group for the pupil");
+                        WriteLine("\nYou have chosen the wrong age group for the pupil");
                         break;
                 }
             }
@@ -609,14 +650,16 @@ namespace course_work
                         balletAdultGroup.AddPupil(addedPupil);
                         break;
                     default:
-                        WriteLine("You have chosen the wrong age group for the pupil");
+                        WriteLine("\nYou have chosen the wrong age group for the pupil");
                         break;
                 }
             }
             else
             {
-                WriteLine("You have chosen the wrong direction of dance for the pupil");
+                WriteLine("\nYou have chosen the wrong direction of dance for the pupil");
+                return;
             }
+            WriteLine("\nStudent added successfully");
 
         }
 

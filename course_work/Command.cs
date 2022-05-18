@@ -3,7 +3,7 @@ namespace course_work
     abstract class Command
     {
         abstract public void DoCommand();
-        protected DanceTeacher danceTeacher;
+        protected  DanceTeacher danceTeacher;
         public DanceTeacher DanceTeacher
         {
             set
@@ -58,8 +58,24 @@ namespace course_work
     {
         public override void DoCommand()
         {
-            danceTeacher.GetInfo();
+            System.Console.WriteLine(danceTeacher.ToString());
         } 
+    }
+
+    class CreateDanceSdudioCommand :Command
+    {
+        public override void DoCommand()
+        {
+            danceTeacher.CreateDanceStudio();
+        }
+    }
+
+    class ChangeLevelCommand : Command
+    {
+        public override void DoCommand()
+        {
+            danceTeacher.ChangeLevel();
+        }
     }
 
 
@@ -67,11 +83,6 @@ namespace course_work
     {
         private Command command;
         public void StoreCommand(Command command)
-        {
-            this.command = command;
-        }
-
-        public void DoCommand()
         {
             command.DoCommand();
         }

@@ -19,7 +19,7 @@ namespace course_work
             }
             else
             {
-                WriteLine("Not enough money to buy this dance room. This room costs:" + danceRoomBuilder.DanceRoom.Price);
+                WriteLine("\nNot enough money to buy this dance room. This room costs:" + danceRoomBuilder.DanceRoom.Price);
             }
         }
     }
@@ -56,8 +56,8 @@ namespace course_work
         public void ShowDanceRoom()
         {
             WriteLine("\n----------------------------------");
-            WriteLine("Dance room: '{0}'  |  Price: '{1}'  | Score: '{2}' ", this.type, this.price, this.score);
-            WriteLine("Components: '{0}', '{1}', '{2}', '{3}', '{4}' ", parts["roomArea"], parts["numOfMirrors"], parts["speakers"], parts["additionalEquipment"]);
+            WriteLine("\nDance room: '{0}'  |  Price: '{1}'  | Score: '{2}' ", this.type, this.price, this.score);
+            WriteLine("\nComponents: '{0}', '{1}', '{2}', '{3}', '{4}' ", parts["roomArea"], parts["numOfMirrors"], parts["speakers"], parts["additionalEquipment"]);
         }
     }
 
